@@ -1,3 +1,11 @@
 streamlit
+numpy
+pandas
+scikit-learn
+nltk
 transformers
+openai
+pymupdf
+deep-translator
 torch
+
