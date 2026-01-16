@@ -1,3 +1,5 @@
+--upgrade-strategy eager
+setuptools>=65.0
 streamlit
 numpy
 pandas
@@ -8,4 +10,5 @@ openai
 pymupdf
 deep-translator
 torch
+
 
