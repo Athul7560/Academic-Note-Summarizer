@@ -8,4 +8,6 @@ openai
 pymupdf
 deep-translator
 torch
+tf-keras
+
 
