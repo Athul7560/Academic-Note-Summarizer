@@ -2,13 +2,13 @@ streamlit
 numpy
 pandas
 scikit-learn
+sklearn
 nltk
 transformers
 openai
 pymupdf
 deep-translator
 torch
-tf-keras
 
 
 
