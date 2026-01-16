@@ -1,14 +1,33 @@
-streamlit
-numpy
-pandas
-scikit-learn
-sklearn
-nltk
-transformers
-openai
-pymupdf
-deep-translator
-torch
+# ============================================================
+# Academic Note Summarizer + Quiz Generator - Requirements
+# ============================================================
 
+# Core Framework
+streamlit>=1.28.0
 
+# Data Processing & Analysis
+numpy>=1.24.0
+pandas>=2.0.0
 
+# Machine Learning & NLP
+scikit-learn>=1.3.0
+nltk>=3.8.1
+
+# Generative AI Models
+transformers>=4.35.0
+torch>=2.0.0
+openai>=1.0.0
+
+# PDF Processing
+PyMuPDF>=1.23.0
+
+# Translation
+deep-translator>=1.11.4
+
+# Additional Dependencies
+python-dateutil>=2.8.2
+pytz>=2023.3
+packaging>=23.0
+
+# Optional: For better performance
+# accelerate>=0.24.0  # Uncomment if using GPU acceleration
