@@ -851,13 +851,14 @@ with st.sidebar:
         model_options
     )
 
+    # Sliders depending on mode
     if "Generative" in selected_model:
         st.info("Uses GPT‑4o‑mini when possible, then DistilGPT2, then Extractive.")
         summary_length = st.slider(
             "Summary Length (words)",
             50, 300, 150, 10
         )
-        num_sentences = None
+        num_sentences = None   # not used in this mode
     else:
         st.info("Using Extractive summarization (no generative model).")
         num_sentences = st.slider(
@@ -867,10 +868,6 @@ with st.sidebar:
         summary_length = None  # not used in this mode
 
     
-    else:  # Extractive
-        st.info("✅ Using Extractive")
-        st.caption("Uses original sentences")
-        num_sentences = st.slider("Summary Length (sentences)", 1, 15, 5)
     
     st.markdown("---")
     
@@ -1163,6 +1160,7 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
 
