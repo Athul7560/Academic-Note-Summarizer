@@ -943,7 +943,7 @@ with tab1:
             if len(text_input) < 50:
                 st.error("⚠️ Enter at least 50 characters")
             else:
-                with st.spinner("🔄 Processing with " + selected_option + "..."):
+                with st.spinner(f"🔄 Processing with {selected_model}..."):
                     if show_stats:
                         st.subheader("📊 Text Analysis")
                         analysis = summarizer.analyze_text(text_input)
@@ -1165,6 +1165,7 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
 
