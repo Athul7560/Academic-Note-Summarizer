@@ -831,6 +831,10 @@ st.markdown("<p style='text-align:center; color:#667eea;'><b>Dual AI: DistilGPT2
 # ============================================================
 # Sidebar Settings
 # ============================================================
+openai_client = load_openai_client()
+distilgpt2_model = load_distilgpt2()
+
+generative_available = (openai_client is not None) or (distilgpt2_model is not None)
 
 with st.sidebar:
     st.header("⚙️ Settings")
@@ -1165,4 +1169,5 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
