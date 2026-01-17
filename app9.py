@@ -834,31 +834,39 @@ st.markdown("<p style='text-align:center; color:#667eea;'><b>Dual AI: DistilGPT2
 
 with st.sidebar:
     st.header("⚙️ Settings")
-    
     st.sidebar.subheader("🧠 AI Model & Method")
 
-    model_options = ["Extractive"]
+    # Detect if at least one generative model is available
+    generative_available = bool(summarizer.openai_client or summarizer.distilgpt2)
 
-    if summarizer.openai_client or summarizer.distilgpt2:
-        model_options.insert(0, "GPT-4o-mini (API)" if summarizer.openai_client else "DistilGPT2 (Generative)")
-        if summarizer.openai_client and summarizer.distilgpt2:
-            model_options.insert(1, "DistilGPT2 (Generative)")
+    model_options = []
+    if generative_available:
+        # Single combined option
+        model_options.append("Generative (GPT‑4o → DistilGPT2)")
+    # Always allow pure extractive
+    model_options.append("Extractive")
 
-    selected_option = st.sidebar.radio(
+    selected_model = st.sidebar.radio(
         "Choose your AI model:",
         model_options
-)
-    
-    
-    if "GPT-4o-mini" in selected_option:
-        st.success("✅ Using OpenAI API")
-        st.caption(" Best quality ")
-        summary_length = st.slider("Summary Length (words)", 50, 300, 150, 10)
-    
-    elif "DistilGPT2" in selected_option:
-        st.success("✅ Using DistilGPT2")
-        st.caption(" Good quality")
-        summary_length = st.slider("Summary Length (words)", 50, 300, 150, 10)
+    )
+
+    # Sliders depending on mode
+    if "Generative" in selected_model:
+        st.info("Uses GPT‑4o‑mini when possible, then DistilGPT2, then Extractive.")
+        summary_length = st.slider(
+            "Summary Length (words)",
+            50, 300, 150, 10
+        )
+        num_sentences = None   # not used in this mode
+    else:
+        st.info("Using Extractive summarization (no generative model).")
+        num_sentences = st.slider(
+            "Summary Length (sentences)",
+            1, 15, 5
+        )
+        summary_length = None  # not used in this mode
+
     
     else:  # Extractive
         st.info("✅ Using Extractive")
@@ -1161,6 +1169,7 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
 
