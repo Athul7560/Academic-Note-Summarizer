@@ -79,7 +79,7 @@ def load_openai_client():
     
     try:
         
-        api_key = "Enter your api key" 
+        api_key = "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" 
         
         if api_key:
             client = OpenAI(api_key=api_key)
