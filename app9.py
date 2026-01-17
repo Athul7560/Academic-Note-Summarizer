@@ -834,76 +834,13 @@ st.markdown("<p style='text-align:center; color:#667eea;'><b>Dual AI: DistilGPT2
 
 with st.sidebar:
     st.header("⚙️ Settings")
-    st.sidebar.subheader("🧠 AI Model & Method")
-
-    # Detect if at least one generative model is available
-    generative_available = bool(summarizer.openai_client or summarizer.distilgpt2)
-
-    model_options = []
-    if generative_available:
-        # Single combined option
-        model_options.append("Generative (GPT‑4o → DistilGPT2)")
-    # Always allow pure extractive
-    model_options.append("Extractive")
-
-    selected_model = st.sidebar.radio(
-        "Choose your AI model:",
-        model_options
-    )
-
-    # Sliders depending on mode
-    if "Generative" in selected_model:
-        st.info("Uses GPT‑4o‑mini when possible, then DistilGPT2, then Extractive.")
-        summary_length = st.slider(
-            "Summary Length (words)",
-            50, 300, 150, 10
-        )
-        num_sentences = None   # not used in this mode
-    else:
-        st.info("Using Extractive summarization (no generative model).")
-        num_sentences = st.slider(
-            "Summary Length (sentences)",
-            1, 15, 5
-        )
-        summary_length = None  # not used in this mode
-
     
-    
-    st.markdown("---")
-    
-    # Quiz Settings
-    st.header("🎓 Quiz Settings")
-    
-    num_quiz_questions = st.slider("Number of Questions", 3, 15, 5)
-    quiz_type = st.selectbox("Quiz Type", ["📝 Multiple Choice (MCQ)", "✅ True/False"])
-    
-    st.markdown("---")
-    
-    # Additional Settings
-    st.header("📊 Other Options")
-    
-    num_keywords = st.slider("Keywords", 5, 20, 10)
-    num_bullet_points = st.slider("Key Points", 3, 10, 5)
-    show_stats = st.checkbox("Show Statistics", value=True)
-    show_bleu = st.checkbox("Show BLEU Score", value=True)
-
-
-# ============================================================
-# Main Tabs
-# ============================================================
-tab1, tab2, tab3 = st.tabs(["📝 Summarize", "🎓 Quiz", "ℹ️ Info"])
-
-
-# ============================================================
-# TAB 1: SUMMARIZATION 
-# ============================================================
-with st.sidebar:
-    st.header("⚙️ Settings")
-    
+   
     st.sidebar.subheader("🧠 AI Model & Method")
 
     model_options = ["Extractive"]
 
+    # Check if generative models are available
     if summarizer.openai_client or summarizer.distilgpt2:
         model_options.insert(0, "GPT-4o-mini (API)" if summarizer.openai_client else "DistilGPT2 (Generative)")
         if summarizer.openai_client and summarizer.distilgpt2:
@@ -925,12 +862,79 @@ with st.sidebar:
         st.caption(" Good quality")
         summary_length = st.slider("Summary Length (words)", 50, 300, 150, 10)
     
-    else:  
+    else:  # Extractive
         st.info("✅ Using Extractive")
         st.caption("Uses original sentences")
         num_sentences = st.slider("Summary Length (sentences)", 1, 15, 5)
     
     st.markdown("---")
+    
+    # Quiz Settings
+    st.header("🎓 Quiz Settings")
+    
+    num_quiz_questions = st.slider("Number of Questions", 3, 15, 5)
+    quiz_type = st.selectbox("Quiz Type", ["📝 Multiple Choice (MCQ)", "✅ True/False"])
+    
+    st.markdown("---")
+    
+    # Additional Settings
+    st.header("📊 Other Options")
+    
+    num_keywords = st.slider("Keywords", 5, 20, 10)
+    num_bullet_points = st.slider("Key Points", 3, 10, 5)
+    show_stats = st.checkbox("Show Statistics", value=True)
+    show_bleu = st.checkbox("Show BLEU Score", value=True)
+
+
+
+# ============================================================
+# Main Tabs
+# ============================================================
+tab1, tab2, tab3 = st.tabs(["📝 Summarize", "🎓 Quiz", "ℹ️ Info"])
+
+
+# ============================================================
+# TAB 1: SUMMARIZATION 
+# ============================================================
+with tab1:
+    st.header("📝 Text/PDF Input")
+    
+    col1, col2 = st.columns([3, 1])
+    
+    with col1:
+        input_method = st.radio("Input Type", ["Text", "PDF"], horizontal=True)
+        
+        if input_method == "Text":
+            text_input = st.text_area(
+                "Enter your notes:",
+                height=250,
+                placeholder="Paste academic text...",
+                key="text_main"
+            )
+        else:
+            uploaded_file = st.file_uploader("Upload PDF", type=['pdf'])
+            text_input = ""
+            pdf_metrics = {}
+            
+            if uploaded_file:
+                with st.spinner("📄 Processing PDF..."):
+                    text_input, pdf_metrics = summarizer.extract_text_from_pdf(uploaded_file)
+                    
+                    if not text_input.startswith("Error"):
+                        st.success(f"✅ PDF Processed Successfully!")
+                        
+                        col1, col2, col3, col4 = st.columns(4)
+                        with col1:
+                            st.metric("Pages Extracted", pdf_metrics.get('extracted_pages', 0))
+                        with col2:
+                            st.metric("Total Words", pdf_metrics.get('total_words', 0))
+                        with col3:
+                            st.metric("Sentences", pdf_metrics.get('total_sentences', 0))
+                        with col4:
+                            st.metric("Avg Words/Page", int(pdf_metrics.get('avg_words_per_page', 0)))
+                    else:
+                        st.error(text_input)
+                        text_input = ""
     
     if text_input and not text_input.startswith("Error"):
         if st.button("✨ Generate Summary", type="primary", use_container_width=True):
@@ -955,11 +959,10 @@ with st.sidebar:
                     
                    
                     summary = None
-                    summary_length_param = 150  
+                    summary_length_param = 150  # default
                     
                     
                     if "Extractive" in selected_option:
-
                         summary_length_param = num_sentences
                     else:
                         summary_length_param = summary_length
@@ -1160,7 +1163,4 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
-
-
-
 
