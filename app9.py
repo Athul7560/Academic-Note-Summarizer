@@ -830,27 +830,30 @@ with st.sidebar:
     st.header("⚙️ Settings")
     st.subheader("🤖 Summarization Method")
     
+    has_generative = summarizer.openai_client or summarizer.distilgpt2
     
     available_approaches = ["🤖 Generative AI", "📊 Extractive"]
-    selected_approach = st.radio(
-        "Choose summarization approach:",
-        available_approaches,
-        index=1
-    )
-
-    
-    if has_generative:
-        available_approaches.append("🤖 Generative AI")
-    
-    available_approaches.append("📊 Extractive")
-    
     
     selected_approach = st.radio(
         "Choose summarization approach:",
         available_approaches,
-        index=0,
+        index=1 if not has_generative else 0, 
         help="Generative AI: Uses advanced language models | Extractive: Uses original sentences"
     )
+    
+    if selected_approach == "🤖 Generative AI" and not has_generative:
+        st.sidebar.warning("⚠️ Configure OpenAI API key in Streamlit Settings → Secrets")
+        selected_approach = "📊 Extractive"
+    
+    st.subheader("📏 Summary Length")
+    num_sentences = st.slider(
+        "Number of sentences:",
+        min_value=1,
+        max_value=10,
+        value=5,
+        help="Choose how many sentences in the summary"
+    )
+
     
   
     summary_length = 150
@@ -1205,4 +1208,5 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
