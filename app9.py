@@ -868,15 +868,6 @@ with st.sidebar:
         summary_length = None  # not used in this mode
 
     
-    else:
-        st.info("Using Extractive summarization (no generative model).")
-        num_sentences = st.slider(
-            "Summary Length (sentences)",
-            1, 15, 5
-        )
-        summary_length = None  
-
-    
     
     st.markdown("---")
     
@@ -952,7 +943,7 @@ with tab1:
             if len(text_input) < 50:
                 st.error("⚠️ Enter at least 50 characters")
             else:
-                with st.spinner("🔄 Processing with " + selected_option + "..."):
+                with st.spinner(f"🔄 Processing with {selected_model}..."):
                     if show_stats:
                         st.subheader("📊 Text Analysis")
                         analysis = summarizer.analyze_text(text_input)
@@ -973,6 +964,8 @@ with tab1:
                     summary_length_param = 150  # default
                     
                     
+                    selected_option = st.sidebar.radio("Choose your AI model:", model_options)
+
                     if "Extractive" in selected_option:
                         summary_length_param = num_sentences
                     else:
@@ -1174,26 +1167,4 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
