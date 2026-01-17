@@ -76,17 +76,25 @@ def load_openai_client():
     """Load OpenAI API Client - Priority #1"""
     if not OPENAI_AVAILABLE:
         return None
-    
+
     try:
-        
-        api_key = "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" 
-        
-        if api_key:
-            client = OpenAI(api_key=api_key)
-            return client
-        return None
+        api_key = None
+
+        if "OPENAI_API_KEY" in st.secrets:
+            api_key = st.secrets["OPENAI_API_KEY"]
+        else:
+            api_key = os.getenv("OPENAI_API_KEY")
+
+        if not api_key:
+            return None
+
+        client = OpenAI(api_key=api_key)
+        return client
+
     except Exception as e:
+        st.warning(f"⚠️ OpenAI client error: {e}")
         return None
+
 
 @st.cache_resource
 def load_distilgpt2():
@@ -1157,3 +1165,4 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
