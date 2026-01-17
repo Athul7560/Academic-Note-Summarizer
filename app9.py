@@ -966,6 +966,7 @@ with tab1:
                     
                     selected_option = st.sidebar.radio("Choose your AI model:", model_options)
 
+                    if "Extractive" in selected_option:
                         summary_length_param = num_sentences
                     else:
                         summary_length_param = summary_length
@@ -1166,6 +1167,7 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
 
