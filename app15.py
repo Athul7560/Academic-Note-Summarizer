@@ -434,7 +434,7 @@ class AcademicSummarizer:
                     if len(sentences) > 1:
                         summary = ' '.join(sentences[:-1])
                 
-                self.last_summary_method = "DistilGPT2 (Generative)"
+                self.last_summary_method = "DistilGPT2 (Generative"
                 return summary if summary else self.extractive_summarize(text, 5)
             
             return self.extractive_summarize(text, 5)
@@ -842,9 +842,9 @@ with st.sidebar:
 
     # Check if generative models are available
     if summarizer.openai_client or summarizer.distilgpt2:
-        model_options.insert(0, "GPT-4o-mini (API)" if summarizer.openai_client else "DistilGPT2 (Generative)")
+        model_options.insert(0, "GPT-4o-mini (API)" if summarizer.openai_client else "Generative AI")
         if summarizer.openai_client and summarizer.distilgpt2:
-            model_options.insert(1, "DistilGPT2 (Generative)")
+            model_options.insert(1, "Generative AI")
 
     selected_option = st.sidebar.radio(
         "Choose your AI model:",
@@ -1163,6 +1163,7 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
 
