@@ -898,52 +898,47 @@ tab1, tab2, tab3 = st.tabs(["📝 Summarize", "🎓 Quiz", "ℹ️ Info"])
 # ============================================================
 # TAB 1: SUMMARIZATION 
 # ============================================================
-with tab1:
-    st.header("📝 Text/PDF Input")
+with st.sidebar:
+    st.header("⚙️ Settings")
     
-    col1, col2 = st.columns([3, 1])
+    st.sidebar.subheader("🧠 AI Model & Method")
+
+    model_options = ["Extractive"]
+
+    if summarizer.openai_client or summarizer.distilgpt2:
+        model_options.insert(0, "GPT-4o-mini (API)" if summarizer.openai_client else "DistilGPT2 (Generative)")
+        if summarizer.openai_client and summarizer.distilgpt2:
+            model_options.insert(1, "DistilGPT2 (Generative)")
+
+    selected_option = st.sidebar.radio(
+        "Choose your AI model:",
+        model_options
+)
     
-    with col1:
-        input_method = st.radio("Input Type", ["Text", "PDF"], horizontal=True)
-        
-        if input_method == "Text":
-            text_input = st.text_area(
-                "Enter your notes:",
-                height=250,
-                placeholder="Paste academic text...",
-                key="text_main"
-            )
-        else:
-            uploaded_file = st.file_uploader("Upload PDF", type=['pdf'])
-            text_input = ""
-            pdf_metrics = {}
-            
-            if uploaded_file:
-                with st.spinner("📄 Processing PDF..."):
-                    text_input, pdf_metrics = summarizer.extract_text_from_pdf(uploaded_file)
-                    
-                    if not text_input.startswith("Error"):
-                        st.success(f"✅ PDF Processed Successfully!")
-                        
-                        col1, col2, col3, col4 = st.columns(4)
-                        with col1:
-                            st.metric("Pages Extracted", pdf_metrics.get('extracted_pages', 0))
-                        with col2:
-                            st.metric("Total Words", pdf_metrics.get('total_words', 0))
-                        with col3:
-                            st.metric("Sentences", pdf_metrics.get('total_sentences', 0))
-                        with col4:
-                            st.metric("Avg Words/Page", int(pdf_metrics.get('avg_words_per_page', 0)))
-                    else:
-                        st.error(text_input)
-                        text_input = ""
+    
+    if "GPT-4o-mini" in selected_option:
+        st.success("✅ Using OpenAI API")
+        st.caption(" Best quality ")
+        summary_length = st.slider("Summary Length (words)", 50, 300, 150, 10)
+    
+    elif "DistilGPT2" in selected_option:
+        st.success("✅ Using DistilGPT2")
+        st.caption(" Good quality")
+        summary_length = st.slider("Summary Length (words)", 50, 300, 150, 10)
+    
+    else:  
+        st.info("✅ Using Extractive")
+        st.caption("Uses original sentences")
+        num_sentences = st.slider("Summary Length (sentences)", 1, 15, 5)
+    
+    st.markdown("---")
     
     if text_input and not text_input.startswith("Error"):
         if st.button("✨ Generate Summary", type="primary", use_container_width=True):
             if len(text_input) < 50:
                 st.error("⚠️ Enter at least 50 characters")
             else:
-                with st.spinner(f"🔄 Processing with {selected_model}..."):
+                with st.spinner("🔄 Processing with " + selected_option + "..."):
                     if show_stats:
                         st.subheader("📊 Text Analysis")
                         analysis = summarizer.analyze_text(text_input)
@@ -961,12 +956,11 @@ with tab1:
                     
                    
                     summary = None
-                    summary_length_param = 150  # default
+                    summary_length_param = 150  
                     
                     
-                    selected_option = st.sidebar.radio("Choose your AI model:", model_options)
-
                     if "Extractive" in selected_option:
+
                         summary_length_param = num_sentences
                     else:
                         summary_length_param = summary_length
@@ -1167,4 +1161,5 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
