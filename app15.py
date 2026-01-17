@@ -136,7 +136,7 @@ class AcademicSummarizer:
         if self.openai_client:
             self.model_used = "GPT-4o-mini (API) ⚡"
         elif self.distilgpt2:
-            self.model_used = "DistilGPT2 (Generative) 🧠"
+            self.model_used = "Generative AI"
         else:
             self.model_used = "Extractive Only"
         
@@ -1163,5 +1163,6 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
