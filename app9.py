@@ -835,11 +835,10 @@ st.markdown("<p style='text-align:center; color:#667eea;'><b>Dual AI: DistilGPT2
 with st.sidebar:
     st.header("⚙️ Settings")
     
-        st.sidebar.subheader("🧠 AI Model & Method")
+    st.sidebar.subheader("🧠 AI Model & Method")
 
     model_options = ["Extractive"]
 
-    # Check if generative models are available
     if summarizer.openai_client or summarizer.distilgpt2:
         model_options.insert(0, "GPT-4o-mini (API)" if summarizer.openai_client else "DistilGPT2 (Generative)")
         if summarizer.openai_client and summarizer.distilgpt2:
@@ -1162,6 +1161,7 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
 
