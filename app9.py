@@ -831,31 +831,21 @@ st.markdown("<p style='text-align:center; color:#667eea;'><b>Dual AI: DistilGPT2
 # ============================================================
 # Sidebar Settings
 # ============================================================
-openai_client = load_openai_client()
-distilgpt2_model = load_distilgpt2()
-
-generative_available = (openai_client is not None) or (distilgpt2_model is not None)
 
 with st.sidebar:
     st.header("⚙️ Settings")
     
-    st.subheader("🤖 AI Model & Method")
-    
-    
-    available_models = []
-    if summarizer.openai_client:
-        available_models.append("🌟 GPT-4o-mini")
-    if summarizer.distilgpt2:
-        available_models.append("🧠 DistilGPT2")
-    available_models.append("📊 Extractive ")
-    
-    
-    selected_option = st.radio(
+    st.sidebar.subheader("🧠 AI Model & Method")
+
+    model_options = ["Extractive"]
+
+    if generative_available:
+        model_options.append("Generative")
+
+    selected_model = st.sidebar.radio(
         "Choose your AI model:",
-        available_models,
-        index=0,
-        help="Select model for summarization"
-    )
+         model_options
+)
     
     
     if "GPT-4o-mini" in selected_option:
@@ -1169,5 +1159,6 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
