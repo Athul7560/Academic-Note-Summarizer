@@ -831,8 +831,13 @@ with st.sidebar:
     st.subheader("🤖 Summarization Method")
     
     
-    available_approaches = []
-    has_generative = summarizer.openai_client or summarizer.distilgpt2
+    available_approaches = ["🤖 Generative AI", "📊 Extractive"]
+    selected_approach = st.radio(
+        "Choose summarization approach:",
+        available_approaches,
+        index=1
+    )
+
     
     if has_generative:
         available_approaches.append("🤖 Generative AI")
@@ -1200,3 +1205,4 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
