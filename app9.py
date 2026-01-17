@@ -76,14 +76,13 @@ def load_openai_client():
     """Load OpenAI API Client - Priority #1"""
     if not OPENAI_AVAILABLE:
         return None
+    
     try:
-        api_key = "Add Your API KEY"
+        
+        api_key = "Enter your api key" 
+        
         if api_key:
             client = OpenAI(api_key=api_key)
-            try:
-                client.models.list()  
-            except:
-                return None  
             return client
         return None
     except Exception as e:
@@ -821,86 +820,46 @@ with col2:
 st.markdown("<p style='text-align:center; color:#667eea;'><b>Dual AI: DistilGPT2 + OpenAI API</b></p>", 
             unsafe_allow_html=True)
 
-
 # ============================================================
 # Sidebar Settings
 # ============================================================
 
 with st.sidebar:
     st.header("⚙️ Settings")
-    st.subheader("🤖 Summarization Method")
     
-    has_generative = summarizer.openai_client or summarizer.distilgpt2
+    st.subheader("🤖 AI Model & Method")
     
-    available_approaches = ["🤖 Generative AI", "📊 Extractive"]
     
-    selected_approach = st.radio(
-        "Choose summarization approach:",
-        available_approaches,
-        index=1 if not has_generative else 0, 
-        help="Generative AI: Uses advanced language models | Extractive: Uses original sentences"
+    available_models = []
+    if summarizer.openai_client:
+        available_models.append("🌟 GPT-4o-mini")
+    if summarizer.distilgpt2:
+        available_models.append("🧠 DistilGPT2")
+    available_models.append("📊 Extractive ")
+    
+    
+    selected_option = st.radio(
+        "Choose your AI model:",
+        available_models,
+        index=0,
+        help="Select model for summarization"
     )
     
-    if selected_approach == "🤖 Generative AI" and not has_generative:
-        st.sidebar.warning("⚠️ Configure OpenAI API key in Streamlit Settings → Secrets")
-        selected_approach = "📊 Extractive"
     
-    st.subheader("📏 Summary Length")
-    num_sentences = st.slider(
-        "Number of sentences:",
-        min_value=1,
-        max_value=10,
-        value=5,
-        help="Choose how many sentences in the summary"
-    )
-
+    if "GPT-4o-mini" in selected_option:
+        st.success("✅ Using OpenAI API")
+        st.caption(" Best quality ")
+        summary_length = st.slider("Summary Length (words)", 50, 300, 150, 10)
     
-  
-    summary_length = 150
-    num_sentences = 5
-    selected_option = None  
+    elif "DistilGPT2" in selected_option:
+        st.success("✅ Using DistilGPT2")
+        st.caption(" Good quality")
+        summary_length = st.slider("Summary Length (words)", 50, 300, 150, 10)
     
-    # ─────────────────────────────────────────────────────
-    # GENERATIVE AI SECTION 
-    # ─────────────────────────────────────────────────────
-    if "Generative AI" in selected_approach:
-        st.success("✅ Using Generative AI Model")
-        
-        
-        if summarizer.openai_client:
-            selected_option = "🌟 GPT-4o-mini (OpenAI API)"
-            model_info = "⚡ Best Quality | Uses OpenAI API"
-        elif summarizer.distilgpt2:
-            selected_option = "🧠 DistilGPT2 (Local)"
-            model_info = "🚀 Fast & Local | Lower Resource Usage"
-        else:
-            selected_option = None
-            model_info = "❌ No generative model available"
-        
-      
-        st.info(f"📌 {model_info}")
-        
-      
-        summary_length = st.slider(
-            "Summary Length (words)", 
-            50, 300, 150, 10,
-            help="Target word count for generated summary"
-        )
-    
-    # ─────────────────────────────────────────────────────
-    # EXTRACTIVE SECTION
-    # ─────────────────────────────────────────────────────
     else:  # Extractive
-        st.info("✅ Using Extractive Method")
-        st.caption("Uses original sentences from text")
-        
-        selected_option = "📊 Extractive"
-        
-        num_sentences = st.slider(
-            "Summary Length (sentences)", 
-            1, 15, 5,
-            help="Number of sentences to extract"
-        )
+        st.info("✅ Using Extractive")
+        st.caption("Uses original sentences")
+        num_sentences = st.slider("Summary Length (sentences)", 1, 15, 5)
     
     st.markdown("---")
     
@@ -929,19 +888,16 @@ tab1, tab2, tab3 = st.tabs(["📝 Summarize", "🎓 Quiz", "ℹ️ Info"])
 
 
 # ============================================================
-# TAB 1: SUMMARIZATION
+# TAB 1: SUMMARIZATION 
 # ============================================================
 with tab1:
     st.header("📝 Text/PDF Input")
-
-    if "summarized_text" not in st.session_state:
-        st.session_state.summarized_text = ""
-
+    
     col1, col2 = st.columns([3, 1])
-
+    
     with col1:
         input_method = st.radio("Input Type", ["Text", "PDF"], horizontal=True)
-
+        
         if input_method == "Text":
             text_input = st.text_area(
                 "Enter your notes:",
@@ -949,130 +905,123 @@ with tab1:
                 placeholder="Paste academic text...",
                 key="text_main"
             )
-            pdf_metrics = {}
-
         else:
-            uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
+            uploaded_file = st.file_uploader("Upload PDF", type=['pdf'])
             text_input = ""
             pdf_metrics = {}
-
+            
             if uploaded_file:
                 with st.spinner("📄 Processing PDF..."):
                     text_input, pdf_metrics = summarizer.extract_text_from_pdf(uploaded_file)
-
-                if text_input and not text_input.startswith("Error"):
-                    st.success("✅ PDF Processed Successfully!")
-
-                    c1, c2, c3, c4 = st.columns(4)
-                    with c1:
-                        st.metric("Pages Extracted", pdf_metrics.get("extracted_pages", 0))
-                    with c2:
-                        st.metric("Total Words", pdf_metrics.get("total_words", 0))
-                    with c3:
-                        st.metric("Sentences", pdf_metrics.get("total_sentences", 0))
-                    with c4:
-                        st.metric("Avg Words/Page", int(pdf_metrics.get("avg_words_per_page", 0)))
-                elif text_input.startswith("Error"):
-                    st.error(text_input)
-                    text_input = ""
-
+                    
+                    if not text_input.startswith("Error"):
+                        st.success(f"✅ PDF Processed Successfully!")
+                        
+                        col1, col2, col3, col4 = st.columns(4)
+                        with col1:
+                            st.metric("Pages Extracted", pdf_metrics.get('extracted_pages', 0))
+                        with col2:
+                            st.metric("Total Words", pdf_metrics.get('total_words', 0))
+                        with col3:
+                            st.metric("Sentences", pdf_metrics.get('total_sentences', 0))
+                        with col4:
+                            st.metric("Avg Words/Page", int(pdf_metrics.get('avg_words_per_page', 0)))
+                    else:
+                        st.error(text_input)
+                        text_input = ""
+    
     if text_input and not text_input.startswith("Error"):
         if st.button("✨ Generate Summary", type="primary", use_container_width=True):
             if len(text_input) < 50:
                 st.error("⚠️ Enter at least 50 characters")
             else:
-                spinner_label = "🔄 Processing..."
-                try:
-                    if "selected_approach" in locals():
-                        spinner_label = f"🔄 Processing ({selected_approach})..."
-                except:
-                    pass
-
-                with st.spinner(spinner_label):
+                with st.spinner("🔄 Processing with " + selected_option + "..."):
                     if show_stats:
                         st.subheader("📊 Text Analysis")
                         analysis = summarizer.analyze_text(text_input)
-
-                        a1, a2, a3, a4 = st.columns(4)
-                        with a1:
+                        col1, col2, col3, col4 = st.columns(4)
+                        with col1:
                             st.metric("Words", analysis["total_words"])
-                        with a2:
+                        with col2:
                             st.metric("Sentences", analysis["total_sentences"])
-                        with a3:
+                        with col3:
                             st.metric("Unique", analysis["unique_words"])
-                        with a4:
+                        with col4:
                             st.metric("Diversity", f"{analysis['lexical_diversity']}%")
-
+                    
                     st.subheader("🤖 Summary")
-
+                    
+                   
                     summary = None
-                    summary_length_param = 150  
-
-                    is_generative = False
-                    try:
-                        is_generative = ("Generative AI" in selected_approach)
-                    except:
-                        is_generative = ("Extractive" not in str(selected_option))
-
-                    if is_generative:
+                    summary_length_param = 150  # default
+                    
+                    
+                    if "Extractive" in selected_option:
+                        summary_length_param = num_sentences
+                    else:
                         summary_length_param = summary_length
-
+                    
+                    
+                    if "GPT-4o-mini" in selected_option:
                         if summarizer.openai_client:
                             summary = summarizer.openai_summarize(text_input, summary_length_param)
-                        elif summarizer.distilgpt2:
+                        else:
+                            st.error("❌ OpenAI API not available. Select another model.")
+                            summary = None
+                    
+                    elif "DistilGPT2" in selected_option:
+                        if summarizer.distilgpt2:
                             summary = summarizer.distilgpt2_summarize(text_input, summary_length_param)
                         else:
-                            summary = summarizer.extractive_summarize(text_input, 5)
-
-                    else:
-                        summary_length_param = num_sentences
+                            st.error("❌ DistilGPT2 not loaded. Select another model.")
+                            summary = None
+                    
+                    else:  # Extractive
                         summary = summarizer.extractive_summarize(text_input, summary_length_param)
-
+                    
+                    
                     if summary:
-                        st.markdown(
-                            f'<div class="summary-box">{summary}</div>',
-                            unsafe_allow_html=True
-                        )
-
+                        st.markdown(f'<div class="summary-box">{summary}</div>', unsafe_allow_html=True)
+                        
+                        
+                        st.caption(f"🔧 Method used: {summarizer.last_summary_method}")
+                        
                         if show_bleu:
                             st.subheader("📈 Summary Quality")
                             metrics = summarizer.evaluate_summary_quality(text_input, summary)
-                            scores = metrics["bleu_scores"]
-
-                            b1, b2, b3, b4 = st.columns(4)
-                            with b1:
+                            scores = metrics['bleu_scores']
+                            
+                            col1, col2, col3, col4 = st.columns(4)
+                            with col1:
                                 st.metric("BLEU-1", f"{scores.get('BLEU-1', 0)}%")
-                            with b2:
+                            with col2:
                                 st.metric("BLEU-2", f"{scores.get('BLEU-2', 0)}%")
-                            with b3:
+                            with col3:
                                 st.metric("BLEU-3", f"{scores.get('BLEU-3', 0)}%")
-                            with b4:
+                            with col4:
                                 st.metric("BLEU-4", f"{scores.get('BLEU-4', 0)}%")
-
-                            c1, c2, c3, c4 = st.columns(4)
-                            with c1:
+                            
+                            col1, col2, col3, col4 = st.columns(4)
+                            with col1:
                                 st.metric("Compression", f"{metrics['compression_ratio']:.1f}%")
-                            with c2:
+                            with col2:
                                 st.metric("Token Overlap", f"{metrics['token_overlap']:.1f}%")
-                            with c3:
-                                st.metric("Avg Sent Len", metrics["avg_sentence_length"])
-                            with c4:
-                                st.metric("Rating", metrics["quality_rating"])
-
+                            with col3:
+                                st.metric("Avg Sent Len", metrics['avg_sentence_length'])
+                            with col4:
+                                st.metric("Rating", metrics['quality_rating'])
+                        
                         st.subheader("🔑 Keywords")
                         keywords = summarizer.extract_keywords(text_input, num_keywords)
-                        keyword_html = "".join([f'<span class="keyword-tag">{k[0]}</span>' for k in keywords])
+                        keyword_html = ''.join([f'<span class="keyword-tag">{k[0]}</span>' for k in keywords])
                         st.markdown(keyword_html, unsafe_allow_html=True)
-
+                        
                         st.subheader("📌 Key Points")
                         points = summarizer.generate_bullet_points(text_input, num_bullet_points)
                         for i, point in enumerate(points, 1):
                             st.markdown(f"**{i}.** {point}")
-
+                        
                         st.session_state.summarized_text = summary
-                    else:
-                        st.error("⚠️ Could not generate summary. Please try again.")
-
 
 # ============================================================
 # TAB 2: QUIZ GENERATION
@@ -1208,5 +1157,3 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
-
-
