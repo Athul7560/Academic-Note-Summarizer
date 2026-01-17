@@ -868,10 +868,15 @@ with st.sidebar:
         summary_length = None  # not used in this mode
 
     
-    else:  # Extractive
-        st.info("✅ Using Extractive")
-        st.caption("Uses original sentences")
-        num_sentences = st.slider("Summary Length (sentences)", 1, 15, 5)
+    else:
+        st.info("Using Extractive summarization (no generative model).")
+        num_sentences = st.slider(
+            "Summary Length (sentences)",
+            1, 15, 5
+        )
+        summary_length = None  
+
+    
     
     st.markdown("---")
     
@@ -1169,6 +1174,7 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
 
