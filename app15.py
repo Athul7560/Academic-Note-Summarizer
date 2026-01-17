@@ -1,6 +1,6 @@
 # ============================================================
 # Academic Note Summarizer + Quiz Generator
-# DUAL APPROACH: DistilGPT2 (Local) + OpenAI API (Optional)
+# DUAL APPROACH: DistilGPT2  + OpenAI API
 # ============================================================
 
 import streamlit as st
@@ -959,7 +959,7 @@ with tab1:
                     
                    
                     summary = None
-                    summary_length_param = 150  # default
+                    summary_length_param = 150  
                     
                     
                     if "Extractive" in selected_option:
@@ -1163,6 +1163,7 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
 
