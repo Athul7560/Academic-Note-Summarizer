@@ -839,12 +839,14 @@ with st.sidebar:
 
     model_options = ["Extractive"]
 
-    if generative_available:
-        model_options.append("Generative")
+    if summarizer.openai_client or summarizer.distilgpt2:
+        model_options.insert(0, "GPT-4o-mini (API)" if summarizer.openai_client else "DistilGPT2 (Generative)")
+        if summarizer.openai_client and summarizer.distilgpt2:
+            model_options.insert(1, "DistilGPT2 (Generative)")
 
-    selected_model = st.sidebar.radio(
+    selected_option = st.sidebar.radio(
         "Choose your AI model:",
-         model_options
+        model_options
 )
     
     
@@ -1159,6 +1161,7 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
 
 
