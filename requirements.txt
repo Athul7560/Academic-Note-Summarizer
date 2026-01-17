@@ -6,3 +6,4 @@ openai
 transformers
 torch
 deep-translator
+huggingface-hub
