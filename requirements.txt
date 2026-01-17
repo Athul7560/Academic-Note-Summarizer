@@ -5,3 +5,4 @@ scikit-learn
 openai
 transformers
 torch
+deep-translator
