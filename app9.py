@@ -1,6 +1,6 @@
 # ============================================================
 # Academic Note Summarizer + Quiz Generator
-# DUAL APPROACH: DistilGPT2 (Local) + OpenAI API (Optional)
+# DUAL APPROACH: DistilGPT2  + OpenAI API 
 # ============================================================
 
 import streamlit as st
@@ -128,11 +128,9 @@ class AcademicSummarizer:
         self.training_data = []
         self.stop_words = set(stopwords.words('english'))
         
-        # Load models in priority order 
         self.openai_client = load_openai_client()
         self.distilgpt2 = load_distilgpt2()
         
-        # Set model name based on availability
         if self.openai_client:
             self.model_used = "GPT-4o-mini (API) ⚡"
         elif self.distilgpt2:
@@ -840,7 +838,6 @@ with st.sidebar:
 
     model_options = ["Extractive"]
 
-    # Check if generative models are available
     if summarizer.openai_client or summarizer.distilgpt2:
         model_options.insert(0, "GPT-4o-mini (API)" if summarizer.openai_client else "DistilGPT2 (Generative)")
         if summarizer.openai_client and summarizer.distilgpt2:
@@ -959,7 +956,7 @@ with tab1:
                     
                    
                     summary = None
-                    summary_length_param = 150  # default
+                    summary_length_param = 150  
                     
                     
                     if "Extractive" in selected_option:
@@ -1163,4 +1160,5 @@ with tab3:
     
     st.markdown("---")
     st.markdown("**Made for students and researchers** 🚀")
+
 
