@@ -12,8 +12,8 @@ from __future__ import annotations
 import argparse
 import re
 from collections import Counter
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, List
 
 
 STOPWORDS = {
@@ -25,7 +25,7 @@ STOPWORDS = {
 }
 
 
-def split_sentences(text: str) -> List[str]:
+def split_sentences(text: str) -> list[str]:
     sentences = re.split(r"(?<=[.!?])\s+", text.strip())
     return [s.strip() for s in sentences if s.strip()]
 
@@ -53,7 +53,7 @@ def summarize(text: str, sentence_count: int = 5) -> str:
     return " ".join(sentences[i] for i in selected_indices)
 
 
-def generate_quiz(text: str, question_count: int = 5) -> List[dict]:
+def generate_quiz(text: str, question_count: int = 5) -> list[dict[str, str | int]]:
     sentences = split_sentences(text)
     ranked_sentences = sorted(
         sentences,
@@ -64,16 +64,22 @@ def generate_quiz(text: str, question_count: int = 5) -> List[dict]:
 
     quiz = []
     for idx, sentence in enumerate(chosen, start=1):
-        words = [w for w in tokenize(sentence) if w not in STOPWORDS]
+        original_words = re.findall(r"[A-Za-z]{3,}", sentence)
+        words = [w for w in original_words if w.lower() not in STOPWORDS]
         if not words:
             continue
         keyword = max(words, key=lambda w: len(w))
-        masked_sentence = re.sub(rf"\b{re.escape(keyword)}\b", "_____", sentence, count=1, flags=re.IGNORECASE)
+        pattern = re.compile(rf"\b{re.escape(keyword)}\b", flags=re.IGNORECASE)
+        match = pattern.search(sentence)
+        if not match:
+            continue
+        answer = match.group(0)
+        masked_sentence = pattern.sub("_____", sentence, count=1)
         quiz.append(
             {
                 "id": idx,
                 "question": f"Fill in the blank: {masked_sentence}",
-                "answer": keyword,
+                "answer": answer,
             }
         )
     return quiz
@@ -100,7 +106,7 @@ def main() -> int:
     args = build_parser().parse_args()
     try:
         source_text = read_input(args.text, args.file)
-    except Exception as exc:
+    except (ValueError, FileNotFoundError, UnicodeDecodeError, OSError) as exc:
         print(f"Error: {exc}")
         return 1
 
